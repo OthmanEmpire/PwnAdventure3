@@ -9,18 +9,26 @@ For whatever reason, you might want to run your own server instance. The officia
 Initial setup
 -------------
 
-According to the requirement listed on the official page, you need an [Ubuntu 14.04](http://www.ubuntu.com/download/server) 64-bit with at least 2Go of RAM. I recommend the desktop version since at some point you will have to run the client version in order to get the data (map, texture, game engine, etc) files locally.
+According to the requirement listed on the official page, you need an [Ubuntu 14.04](http://www.ubuntu.com/download/server) 64-bit with at least 2GB of RAM. I recommend the desktop version since at some point you will have to run the client version in order to get the data (map, texture, game engine, etc) files locally.
 
 
 > __note:__ Ubuntu 16.04 Server/Desktop works as well
 
-In my case, I installed Ubuntu Desktop VM with 5.5Go of RAM on [VirtualBox](https://www.virtualbox.org/).
+In my case, I installed Ubuntu Desktop VM with 5.5GB of RAM on [VirtualBox](https://www.virtualbox.org/).
 
-You first need to create the user `pwn3`. Once the installation done, you should install the latest updates:
+Once the installation done, you should install the latest updates. You might need to wait a bit if opted to install updates during installation, otherwise an error message about dpkg being locked will appear (I had to wait ~20 minutes until everything downloaded):
 
 ```
 sudo apt-get update
 sudo apt-get upgrade
+```
+
+Now create the user `pwn3` if you haven't already created it as the main user during the Ubunutu installation and switch to it. 
+
+```
+sudo adduser pwn3 --login /bin/bash
+sudo adduser pwn3 sudo
+sudo su - pwn3
 ```
 
 Then you will need to download both the [server](http://pwnadventure.com/PwnAdventure3Server.tar.gz) and the [Linux client](http://pwnadventure.com/PwnAdventure3_Launcher_Linux.zip) archives and extract them in a new folder `~/PwnAdventure3`:
@@ -89,20 +97,22 @@ template1=# GRANT ALL PRIVILEGES ON DATABASE master TO pwn3;
 template1=# \q
 ```
 
-You are still authenticated as `postgres`, so now you need to get back to your pwn3 user:
+You are still authenticated as Linux `postgres` user, so now you need to get back to your Linux `pwn3` user:
 
 ```
 # Get back to pwn3
 exit
 ```
 
-Just to make sure everything went as expected, you can try to access the database "master" with the user "pwn3":
+Just to make sure everything went as expected, you can try to access the database "master" with the Linux user "pwn3":
 
 ```
 psql -d master -U pwn3
 ```
 
-If this works, you can leave the psql console (`\q`). Now let's initialise the master database. A SQL script is available in the server folder:
+If this works, you can leave the psql console (`\q`). Otherwise you might need to troubleshoot permission issues using `\d` to list all tables and owners of these tables. Using `\?` for more commands and Google and at this point would be advised. 
+
+Now let's initialise the master database. A SQL script is available in the server folder:
 
 ```
 psql master -f ~/PwnAdventure3/servers/MasterServer/initdb.sql
@@ -113,8 +123,8 @@ This will create all tables and populate the database. If you want to change the
 ```
 psql -d master -U pwn3
 
-master=# UPDATE info SET contents='My custom server' WHERE name='login_title';
-master=# UPDATE info SET contents='Hello everyone and welcome to my customer server!' WHERE name='login_text';
+master=# UPDATE info SET contents='<MY_CUSTOM_SERVER>' WHERE name='login_title';
+master=# UPDATE info SET contents='<HELLO_EVERYONE_AND_WELCOME!>' WHERE name='login_text';
 ```
 
 
